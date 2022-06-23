@@ -73,7 +73,6 @@ export default function App() {
           <Box border='3px solid grey'>
             <Input placeholder="Search..." onChange={handleSearch}/>
             {isLoading ? <Spinner /> : <Snippets snippets={search ? searchedSnippets : snippets}/>}            
-            {/* {isLoading ? <Spinner /> : <Snippets snippets={search ? searchedSnippets : snippets}/>}             */}
           </Box>
           <Box border='3px solid grey' minW='200px'>
             {isLoading ? null : <RightPanel categories={categories} handleCategoryClick={handleCategoryClick}/>} 
