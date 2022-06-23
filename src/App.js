@@ -9,7 +9,7 @@ import {
   Spinner,
   Input
 } from '@chakra-ui/react';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
+import { ColorModeSwitcher } from './components/ColorModeSwitcher';
 import Snippets from './components/Snippets';
 import RightPanel from './components/RightPanel';
 
