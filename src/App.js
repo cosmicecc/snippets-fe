@@ -1,95 +1,76 @@
-import React from 'react';
-import {useState, useEffect} from 'react';
+import {React, useState, useEffect} from 'react';
+import axios from 'axios';
 import {
   ChakraProvider,
   Box,
-  VStack,
-  Code,
   theme,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Heading,
-  useClipboard,
-  Button,
   Flex, 
-  Spacer ,
+  Spacer,
+  Spinner,
 } from '@chakra-ui/react';
+// import Nav from "./components/Nav";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
+// import './styles/main.css';
+import Snippets from './components/Snippets';
+import RightPanel from './components/RightPanel';
 
-function App() {
+export default function App() {
   // Set up initial values and state.
-  const snippetsPath = 'http://localhost:1337/api/snippets?populate=*'
+  const apiPath = 'http://localhost:1337/api/'
+  const snippetsPath = 'snippets?populate=categories'
+  const categoriesPath = 'categories'
+  const [isLoading, setIsLoading] = useState(true);
   const [snippets, setSnippets] = useState([]);
-  const [copValue, setCopyValue] = useState('')
-  // Part of Chakra UI - use for copying stuff to clipboard.
-  const { hasCopied, onCopy } = useClipboard(copValue)
+  const [categories, setCategories] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  // When an accordion is opened (clicked on), add that 
-  // snippet value to the copy value to allow it to be copied.
-  function doSetCopyValue(value) {
-    setCopyValue(value);
-  }
-
-  // Build the list of snippets by mapping over the data from the fetch request.
-  const snippetsList = snippets.map(snippet => 
-    <AccordionItem key={snippet.id}>
-      <h2>
-        {/* Set the copy value to the value of this snippet. */}
-        <AccordionButton onClick={() => doSetCopyValue(snippet.attributes.Snippet)}>
-          <Box flex='1' textAlign='left'>
-            {snippet.attributes.Name}
-          </Box>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-        <Flex>
-          <Code>
-            {snippet.attributes.Snippet}
-          </Code>
-          <Spacer/>
-          <Button onClick={onCopy} ml={2}>
-            {hasCopied ? 'Copied' : 'Copy'}
-          </Button>
-        </Flex>
-      </AccordionPanel>
-    </AccordionItem>
-  )
-
-  // Fetch data from the Strapi api.
   useEffect(() => {
-    fetch(snippetsPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // If there is a filter (someone has clicked on a category link)
+    // add the filter path to the snippets path.
+    const dataPath = filter ? snippetsPath+filter : snippetsPath
+    const getData = async () => {
+      const resSnippets = await axios(apiPath+dataPath);
+      const resCategories = await axios(apiPath+categoriesPath);
+      return ([
+        await resSnippets.data.data,
+        await resCategories.data.data
+      ]);
+    }
+    getData().then(data => {
+      setSnippets(data[0])
+      setCategories(data[1])
+      setIsLoading(false)
     })
-    .then(response => response.json())
-    .then(data => {
-      setSnippets(data.data)
-    })
-  },[])
+    .catch(err => { 
+      console.log(err)
+    });
+
+  }, [filter])
+ 
+  function handleCategoryClick(cat) {
+    if (cat) {
+      setFilter('&filters[categories][id][$eq]='+cat);
+    } else {
+      setFilter('');
+    }
+  }
 
   return (
     <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Flex minH="100vh" p={3} border="2px">
-        <Spacer/>
+      <Box textAlign="center" fontSize="xl"> 
+        {/* <Nav/> */}
+        <Flex minH="100vh" p={3}>
+          <Spacer/>
           <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Heading>Snippets</Heading>
-            <Accordion allowToggle minW="600px">
-              {snippetsList}
-            </Accordion>
-          </VStack>
+          <Box border='3px solid grey'>
+            {isLoading ? <Spinner /> : <Snippets snippets={snippets}/>}            
+          </Box>
+          <Box border='3px solid grey' minW='200px'>
+            {isLoading ? null : <RightPanel categories={categories} handleCategoryClick={handleCategoryClick}/>} 
+          </Box>
           <Spacer/>
         </Flex>
       </Box>
     </ChakraProvider>
   );
 }
-
-export default App;
