@@ -7,6 +7,7 @@ import {
   Flex, 
   Spacer,
   Spinner,
+  Input
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import Snippets from './components/Snippets';
@@ -21,6 +22,8 @@ export default function App() {
   const [snippets, setSnippets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState('');
+  const [search, setSearch] = useState('');
+  let searchedSnippets = '';
 
   useEffect(() => {
     // If there is a filter (someone has clicked on a category link)
@@ -42,7 +45,6 @@ export default function App() {
     .catch(err => { 
       console.log(err)
     });
-
   }, [filter])
  
   // Set the filter value when a category is clicked on.
@@ -54,6 +56,14 @@ export default function App() {
     }
   }
 
+  function handleSearch(e) {
+    setSearch(e.target.value)
+  }
+
+  // If there is something searched for, filter the results using that value.
+  if (snippets && search) {
+     searchedSnippets = snippets.filter(snippet => snippet.attributes.Name.toLowerCase().includes(search))
+  }
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign="center" fontSize="xl"> 
@@ -61,7 +71,9 @@ export default function App() {
           <Spacer/>
           <ColorModeSwitcher justifySelf="flex-end" />
           <Box border='3px solid grey'>
-            {isLoading ? <Spinner /> : <Snippets snippets={snippets}/>}            
+            <Input placeholder="Search..." onChange={handleSearch}/>
+            {isLoading ? <Spinner /> : <Snippets snippets={search ? searchedSnippets : snippets}/>}            
+            {/* {isLoading ? <Spinner /> : <Snippets snippets={search ? searchedSnippets : snippets}/>}             */}
           </Box>
           <Box border='3px solid grey' minW='200px'>
             {isLoading ? null : <RightPanel categories={categories} handleCategoryClick={handleCategoryClick}/>} 
