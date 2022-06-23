@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import { Box, Heading, Link, List, ListItem, Button, Stack, textDecoration } from "@chakra-ui/react";
+import { Box, Heading, Link, List, ListItem, Button, Stack } from "@chakra-ui/react";
 
 export default function RightPanel(props) {
     // Set up initial values and state.
@@ -8,26 +8,29 @@ export default function RightPanel(props) {
 
     const toggleClass = (index) => {
         // Toggle active/inactive using the 
-        // index passed from the clicked on button.
+        // index passed from the clicked on category link.
         if (index) {
+            props.handleCategoryClick(index)
             setActive((isActive) => (isActive === index ? null : index));
         } else {
+            props.handleCategoryClick(null)
             setActive();
         }
     };
 
     useEffect(() => {
         setCategories(props.categories)
-      }, [])
+    }, [])
+
     // Build the list of categories by mapping over the data from the fetch request.
-    const categoriesList = categories.map((category, index) => 
+    const categoriesList = categories.map(category => 
         <ListItem key={category.id}>
             <Link 
                 onClick={() => {
-                    props.handleCategoryClick(category.id)
-                    toggleClass(index)
+                    toggleClass(category.id)
                 }} 
-                sx={isActive === index ? { textDecoration: 'underline' } : null}
+                // Highlight the clicked on/selected category.
+                sx={isActive === category.id ? { textDecoration: 'underline' } : null}
             >
                 {category.attributes.Name}
             </Link>
@@ -48,7 +51,6 @@ export default function RightPanel(props) {
                 colorScheme="gray" 
                 borderRadius={25} 
                 onClick={() => {
-                    props.handleCategoryClick(null)
                     toggleClass(null)
                 }}
             >

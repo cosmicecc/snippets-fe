@@ -8,9 +8,7 @@ import {
   Spacer,
   Spinner,
 } from '@chakra-ui/react';
-// import Nav from "./components/Nav";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-// import './styles/main.css';
 import Snippets from './components/Snippets';
 import RightPanel from './components/RightPanel';
 
@@ -47,6 +45,7 @@ export default function App() {
 
   }, [filter])
  
+  // Set the filter value when a category is clicked on.
   function handleCategoryClick(cat) {
     if (cat) {
       setFilter('&filters[categories][id][$eq]='+cat);
@@ -58,7 +57,6 @@ export default function App() {
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign="center" fontSize="xl"> 
-        {/* <Nav/> */}
         <Flex minH="100vh" p={3}>
           <Spacer/>
           <ColorModeSwitcher justifySelf="flex-end" />
